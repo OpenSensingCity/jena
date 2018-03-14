@@ -22,7 +22,9 @@ import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
-import org.apache.jena.datatypes.cdt.UCUMDatatype;
+import javax.measure.Quantity;
+import org.apache.jena.datatypes.cdt.CDTDatatype;
+import org.apache.jena.datatypes.cdt.quantity.QuantityDatatype;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype ;
 import org.apache.jena.datatypes.xsd.impl.RDFLangString ;
@@ -71,7 +73,7 @@ public class TypeMapper {
         theTypeMap.registerDatatype(XMLLiteralType.theXMLLiteralType);
         theTypeMap.registerDatatype(RDFLangString.rdfLangString) ;
         XSDDatatype.loadXSDSimpleTypes(theTypeMap);
-        theTypeMap.registerDatatype(UCUMDatatype.theUCUMType);
+        CDTDatatype.loadCDTTypes(theTypeMap);
 
         // add primitive types
         theTypeMap.classToDT.put(float.class, theTypeMap.classToDT.get(Float.class));
@@ -157,6 +159,9 @@ public class TypeMapper {
      * of <code>value</code>
      */
     public RDFDatatype getTypeByValue(final Object value) {
+        if(value instanceof Quantity) {
+            return QuantityDatatype.getMostSuitableQuantityDatatype((Quantity) value);
+        }
         return getTypeByClass(value.getClass());
     }
 

@@ -38,11 +38,9 @@ import javax.xml.datatype.XMLGregorianCalendar ;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype ;
 import org.apache.jena.graph.Node ;
-import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.expr.ExprEvalTypeException ;
 import org.apache.jena.sparql.expr.NodeValue ;
 import org.apache.jena.sparql.expr.ValueSpaceClassification ;
-import static org.apache.jena.sparql.expr.nodevalue.XSDFuncOp.classifyNumeric;
 import org.apache.jena.sparql.util.NodeFactoryExtra ;
 
 /** The code parts of arithmetic operations on {@link NodeValue}s.

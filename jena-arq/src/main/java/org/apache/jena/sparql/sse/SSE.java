@@ -24,6 +24,7 @@ import java.util.function.Consumer ;
 import org.apache.jena.atlas.io.IO ;
 import org.apache.jena.atlas.io.IndentedLineBuffer ;
 import org.apache.jena.atlas.io.IndentedWriter ;
+import org.apache.jena.datatypes.cdt.CDT;
 import org.apache.jena.graph.Graph ;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.graph.Triple ;
@@ -126,6 +127,8 @@ public class SSE
         readMap("apf",      ARQConstants.ARQProcedureLibraryURI) ;
         readMap("agg",      ARQConstants.ARQAggregateLibraryURI) ;
         readMap("list",     ListPFunction.getURI()) ;
+
+        readMap("cdt",      CDT.getURI()) ;
 
         readMap("ex",       "http://example.org/") ;
         readMap("ns",       "http://example.org/ns#") ;

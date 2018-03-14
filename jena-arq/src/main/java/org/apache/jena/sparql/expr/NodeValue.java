@@ -46,7 +46,8 @@ import org.apache.jena.atlas.logging.Log ;
 import org.apache.jena.datatypes.DatatypeFormatException ;
 import org.apache.jena.datatypes.RDFDatatype ;
 import org.apache.jena.datatypes.TypeMapper ;
-import org.apache.jena.datatypes.cdt.UCUMDatatype;
+import org.apache.jena.datatypes.cdt.quantity.QuantityDatatype;
+import org.apache.jena.datatypes.cdt.quantity.CDTUCUM;
 import org.apache.jena.datatypes.xsd.XSDDateTime ;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.graph.NodeFactory ;
@@ -565,7 +566,7 @@ public abstract class NodeValue extends ExprNode
 
             case VSPACE_QUANTITY:
                 // Two quantity literals
-                // compare them with the javax.quantity API.
+                // compare them with the JSR 385 API.
 
                 final NodeValueQuantity nvc1 = (NodeValueQuantity) nv1;
                 final NodeValueQuantity nvc2 = (NodeValueQuantity) nv2;
@@ -576,7 +577,6 @@ public abstract class NodeValue extends ExprNode
                 }
                 try {
                     final Quantity q3 = q2.to(q1.getUnit());
-
                     return Objects.equals(q1.getUnit(), q3.getUnit())
                         && q1.getValue().floatValue() == q3.getValue().floatValue();
                 } catch (Exception e) {
@@ -905,9 +905,6 @@ public abstract class NodeValue extends ExprNode
         ValueSpaceClassification c1 = nv1.getValueSpace() ;
         ValueSpaceClassification c2 = nv2.getValueSpace() ;
         if ( c1 == c2 ) return c1 ;
-        if (c1 == VSPACE_QUANTITY || c2 == VSPACE_QUANTITY) {
-            return VSPACE_QUANTITY;
-        }        
         if ( c1 == VSPACE_UNKNOWN || c2 == VSPACE_UNKNOWN )
             return VSPACE_UNKNOWN ;
         
@@ -1104,8 +1101,8 @@ public abstract class NodeValue extends ExprNode
         String lex = lit.getLexicalForm() ;
         RDFDatatype datatype = lit.getDatatype() ;
 
-        if ( datatype.equals(UCUMDatatype.theUCUMType)) {
-            Quantity quantity = (Quantity) UCUMDatatype.theUCUMType.parse(lit.getLexicalForm());
+        if ( datatype instanceof QuantityDatatype ) {
+            Quantity quantity = (Quantity) datatype.parse(lit.getLexicalForm());
             return new NodeValueQuantity(quantity);
         } 
 

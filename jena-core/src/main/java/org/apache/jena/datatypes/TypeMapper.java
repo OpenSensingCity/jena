@@ -157,7 +157,7 @@ public class TypeMapper {
      * of <code>value</code>
      */
     public RDFDatatype getTypeByValue(final Object value) {
-        return classToDT.get(value.getClass());
+        return getTypeByClass(value.getClass());
     }
 
     /**
@@ -175,7 +175,22 @@ public class TypeMapper {
      * @return a datatype whose value space matches the given java class
      */
     public RDFDatatype getTypeByClass(final Class<?> clazz) {
-        return classToDT.get(clazz);
+        RDFDatatype dt = classToDT.get(clazz);
+        if(dt != null) {
+            return dt;
+        }
+        if(clazz.equals(Object.class)) {
+            return null;
+        }
+        for(Class key : classToDT.keySet()) {
+            if(key.equals(Object.class)) {
+                continue;
+            }
+            if(key.isAssignableFrom(clazz)) {
+                return classToDT.get(key);
+            }
+        }
+        return null;
     }
 
     /**

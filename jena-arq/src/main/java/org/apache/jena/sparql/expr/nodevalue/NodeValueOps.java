@@ -26,18 +26,23 @@ import static org.apache.jena.sparql.expr.ValueSpaceClassification.VSPACE_DURATI
 import static org.apache.jena.sparql.expr.ValueSpaceClassification.VSPACE_NUM ;
 import static org.apache.jena.sparql.expr.ValueSpaceClassification.VSPACE_STRING ;
 import static org.apache.jena.sparql.expr.ValueSpaceClassification.VSPACE_TIME ;
+import static org.apache.jena.sparql.expr.ValueSpaceClassification.VSPACE_QUANTITY ;
 
 import java.math.BigDecimal ;
 import java.util.GregorianCalendar ;
+import javax.measure.Quantity;
+import javax.measure.UnconvertibleException;
 
 import javax.xml.datatype.Duration ;
 import javax.xml.datatype.XMLGregorianCalendar ;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype ;
 import org.apache.jena.graph.Node ;
+import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.expr.ExprEvalTypeException ;
 import org.apache.jena.sparql.expr.NodeValue ;
 import org.apache.jena.sparql.expr.ValueSpaceClassification ;
+import static org.apache.jena.sparql.expr.nodevalue.XSDFuncOp.classifyNumeric;
 import org.apache.jena.sparql.util.NodeFactoryExtra ;
 
 /** The code parts of arithmetic operations on {@link NodeValue}s.
@@ -163,6 +168,17 @@ public class NodeValueOps
         if ( isDT(vs2) && vs1.equals(VSPACE_DURATION) )
             // Carefully ...
             return additionNV(nv2, nv1) ;
+        
+        if ( vs1.equals(VSPACE_QUANTITY) && vs2.equals(VSPACE_QUANTITY) ) {
+            final Quantity q1 = nv1.getQuantity();
+            final Quantity q2 = nv2.getQuantity();
+            try {
+                return new NodeValueQuantity(q1.add(q2));
+            } catch (UnconvertibleException ex) {
+                throw new ExprEvalTypeException("Operator '+' : Incompatible dimensions: "+nv1+" and "+nv2) ;        
+            }
+        }
+        
         throw new ExprEvalTypeException("Operator '+' : Undefined addition: "+nv1+" and "+nv2) ; 
     }
 
@@ -232,6 +248,16 @@ public class NodeValueOps
             return r ;
         }
         
+        if ( vs1.equals(VSPACE_QUANTITY) && vs2.equals(VSPACE_QUANTITY) ) {
+            final Quantity q1 = nv1.getQuantity();
+            final Quantity q2 = nv2.getQuantity();
+            try {
+                return new NodeValueQuantity(q1.subtract(q2));
+            } catch (UnconvertibleException ex) {
+                throw new ExprEvalTypeException("Operator '+' : Incompatible dimensions: "+nv1+" and "+nv2) ;        
+            }
+        }
+        
         throw new ExprEvalTypeException("Operator '-' : Undefined subtraction: "+nv1+" and "+nv2) ; 
     }
 
@@ -255,6 +281,37 @@ public class NodeValueOps
             Node n = NodeFactoryExtra.createLiteralNode(r.toString(), null, dtXSDdayTimeDuration) ;
             return NodeValue.makeNodeDuration(r, n) ; 
         }
+
+        if ( vs1.equals(VSPACE_QUANTITY) && vs2.equals(VSPACE_QUANTITY) ) {
+            final Quantity q1 = nv1.getQuantity();
+            final Quantity q2 = nv2.getQuantity();
+            return new NodeValueQuantity(q1.multiply(q2));
+        }
+
+        if ( vs1.equals(VSPACE_QUANTITY) && vs2.equals(VSPACE_NUM) ) {
+            final Quantity q1 = nv1.getQuantity();
+            if ( nv2.isInteger() )
+                return new NodeValueQuantity(q1.multiply(nv2.getInteger()));
+            if (nv2.isDecimal())
+                return new NodeValueQuantity(q1.multiply(nv2.getDecimal()));
+            if (nv2.isFloat())
+                return new NodeValueQuantity(q1.multiply(nv2.getFloat()));
+            if (nv2.isDouble())
+                return new NodeValueQuantity(q1.multiply(nv2.getDouble()));
+        }
+
+        if ( vs1.equals(VSPACE_NUM) && vs2.equals(VSPACE_QUANTITY) ) {
+            final Quantity q2 = nv2.getQuantity();
+            if ( nv1.isInteger() )
+                return new NodeValueQuantity(q2.multiply(nv1.getInteger()));
+            if (nv1.isDecimal())
+                return new NodeValueQuantity(q2.multiply(nv1.getDecimal()));
+            if (nv1.isFloat())
+                return new NodeValueQuantity(q2.multiply(nv1.getFloat()));
+            if (nv1.isDouble())
+                return new NodeValueQuantity(q2.multiply(nv1.getDouble()));
+        }
+
         throw new ExprEvalTypeException("Operator '*' : Undefined multiply: "+nv1+" and "+nv2) ; 
     }
     
@@ -265,6 +322,36 @@ public class NodeValueOps
         
         if ( vs1.equals(VSPACE_NUM) && vs2.equals(VSPACE_NUM) )
             return XSDFuncOp.numDivide(nv1, nv2) ;
+
+        if ( vs1.equals(VSPACE_QUANTITY) && vs2.equals(VSPACE_QUANTITY) ) {
+            final Quantity q1 = nv1.getQuantity();
+            final Quantity q2 = nv2.getQuantity();
+            return new NodeValueQuantity(q1.divide(q2));
+        }
+        
+        if ( vs1.equals(VSPACE_QUANTITY) && vs2.equals(VSPACE_NUM) ) {
+            final Quantity q1 = nv1.getQuantity();
+            if ( nv2.isInteger() )
+                return new NodeValueQuantity(q1.divide(nv2.getInteger()));
+            if (nv2.isDecimal())
+                return new NodeValueQuantity(q1.divide(nv2.getDecimal()));
+            if (nv2.isFloat())
+                return new NodeValueQuantity(q1.divide(nv2.getFloat()));
+            if (nv2.isDouble())
+                return new NodeValueQuantity(q1.divide(nv2.getDouble()));
+        }
+
+        if ( vs1.equals(VSPACE_NUM) && vs2.equals(VSPACE_QUANTITY) ) {
+            final Quantity q2 = nv2.getQuantity();
+            if ( nv1.isInteger() )
+                return new NodeValueQuantity(q2.inverse().multiply(nv1.getInteger()));
+            if (nv1.isDecimal())
+                return new NodeValueQuantity(q2.inverse().multiply(nv1.getDecimal()));
+            if (nv1.isFloat())
+                return new NodeValueQuantity(q2.inverse().multiply(nv1.getFloat()));
+            if (nv1.isDouble())
+                return new NodeValueQuantity(q2.inverse().multiply(nv1.getDouble()));
+        }
 
         throw new ExprEvalTypeException("Operator '/' : Undefined division: "+nv1+" and "+nv2) ; 
     }

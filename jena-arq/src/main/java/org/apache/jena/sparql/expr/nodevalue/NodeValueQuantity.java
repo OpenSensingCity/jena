@@ -20,6 +20,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.graph.impl.LiteralLabelFactory;
+import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.NodeValue;
 
 /**
@@ -58,5 +59,5 @@ public class NodeValueQuantity extends NodeValue {
     @Override
     public void visit(NodeValueVisitor visitor) {
         visitor.visit(this);
-    }
+    }    
 }

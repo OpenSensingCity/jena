@@ -29,8 +29,10 @@ import java.math.BigDecimal ;
 import java.math.BigInteger ;
 import java.util.Calendar ;
 import java.util.Iterator ;
+import java.util.Objects;
 import java.util.Properties ;
 import java.util.ServiceLoader ;
+import javax.measure.Quantity;
 
 import javax.xml.datatype.DatatypeConfigurationException ;
 import javax.xml.datatype.DatatypeFactory ;
@@ -44,6 +46,7 @@ import org.apache.jena.atlas.logging.Log ;
 import org.apache.jena.datatypes.DatatypeFormatException ;
 import org.apache.jena.datatypes.RDFDatatype ;
 import org.apache.jena.datatypes.TypeMapper ;
+import org.apache.jena.datatypes.cdt.UCUMDatatype;
 import org.apache.jena.datatypes.xsd.XSDDateTime ;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.graph.NodeFactory ;
@@ -309,6 +312,9 @@ public abstract class NodeValue extends ExprNode
     public static NodeValue makeBoolean(boolean b)
     { return b ? NodeValue.TRUE : NodeValue.FALSE ; }
     
+    public static NodeValue makeQuantity(Quantity quantity)
+    { return new NodeValueQuantity(quantity) ; }
+    
     public static NodeValue booleanReturn(boolean b)
     { return b ? NodeValue.TRUE : NodeValue.FALSE ; }
 
@@ -557,6 +563,27 @@ public abstract class NodeValue extends ExprNode
                 // Two non-literals
                 return NodeFunctions.sameTerm(nv1.getNode(), nv2.getNode()) ;
 
+            case VSPACE_QUANTITY:
+                // Two quantity literals
+                // compare them with the javax.quantity API.
+
+                final NodeValueQuantity nvc1 = (NodeValueQuantity) nv1;
+                final NodeValueQuantity nvc2 = (NodeValueQuantity) nv2;
+                final Quantity q1 = nvc1.getQuantity();
+                final Quantity q2 = nvc2.getQuantity();
+                if (q1.equals(q2)) {
+                    return true;
+                }
+                try {
+                    final Quantity q3 = q2.to(q1.getUnit());
+
+                    return Objects.equals(q1.getUnit(), q3.getUnit())
+                        && q1.getValue().floatValue() == q3.getValue().floatValue();
+                } catch (Exception e) {
+                    return false;
+                }
+        
+
             case VSPACE_UNKNOWN:
             {
                 // One or two unknown value spaces, or one has a lang tag (but not both).
@@ -735,6 +762,7 @@ public abstract class NodeValue extends ExprNode
             case VSPACE_NODE :
             case VSPACE_NUM :
             case VSPACE_STRING :
+            case VSPACE_QUANTITY:
             case VSPACE_SORTKEY :
             case VSPACE_UNKNOWN :
                 // Drop through.
@@ -825,6 +853,26 @@ public abstract class NodeValue extends ExprNode
                     throw new ARQInternalErrorException("NodeValue.raise returned") ;
                 }
 
+
+            case VSPACE_QUANTITY:
+                // Two custom literals
+                // call the javascript function to compare these node values.
+                NodeValueQuantity nvq1 = (NodeValueQuantity) nv1;
+                NodeValueQuantity nvq2 = (NodeValueQuantity) nv2;
+                final Quantity q1 = nvq1.getQuantity();
+                final Quantity q2 = nvq2.getQuantity();
+                if (q1.equals(q2)) {
+                    return 0;
+                }
+                try {
+                    final Quantity q3 = q2.to(q1.getUnit());
+                
+                    return (int) Math.signum(q1.getValue().floatValue() - q3.getValue().floatValue());
+                } catch (Exception ex) {
+                    raise(new ExprNotComparableException("Can't compare quantities with units (nodes) "+q1.getUnit()+" and "+q2.getUnit())) ;
+                    throw new ARQInternalErrorException("NodeValue.raise returned") ;
+                }
+            
             case VSPACE_UNKNOWN:
             {
                 // One or two unknown value spaces.
@@ -857,6 +905,9 @@ public abstract class NodeValue extends ExprNode
         ValueSpaceClassification c1 = nv1.getValueSpace() ;
         ValueSpaceClassification c2 = nv2.getValueSpace() ;
         if ( c1 == c2 ) return c1 ;
+        if (c1 == VSPACE_QUANTITY || c2 == VSPACE_QUANTITY) {
+            return VSPACE_QUANTITY;
+        }        
         if ( c1 == VSPACE_UNKNOWN || c2 == VSPACE_UNKNOWN )
             return VSPACE_UNKNOWN ;
         
@@ -872,6 +923,7 @@ public abstract class NodeValue extends ExprNode
         if ( nv.isDateTime() )      return VSPACE_DATETIME ;
         if ( nv.isString())         return VSPACE_STRING ;
         if ( nv.isBoolean())        return VSPACE_BOOLEAN ;
+        if ( nv.isQuantity())       return VSPACE_QUANTITY ;
         if ( ! nv.isLiteral() )     return VSPACE_NODE ;
 
         if ( ! SystemARQ.ValueExtensions )
@@ -968,6 +1020,8 @@ public abstract class NodeValue extends ExprNode
     public boolean isGMonth()       { return false ; }
     public boolean isGMonthDay()    { return false ; }
     public boolean isGDay()         { return false ; }
+
+    public boolean isQuantity()         { return false ; }
     
     public boolean     getBoolean()     { raise(new ExprEvalTypeException("Not a boolean: "+this)) ; return false ; }
     public String      getString()      { raise(new ExprEvalTypeException("Not a string: "+this)) ; return null ; }
@@ -981,6 +1035,8 @@ public abstract class NodeValue extends ExprNode
     // Value representation for all date and time values.
     public XMLGregorianCalendar getDateTime()    { raise(new ExprEvalTypeException("No DateTime value: "+this)) ; return null ; }
     public Duration    getDuration() { raise(new ExprEvalTypeException("Not a duration: "+this)) ; return null ; }
+
+    public Quantity    getQuantity() { raise(new ExprEvalTypeException("Not a quantity: "+this)) ; return null ; }
 
     // ----------------------------------------------------------------
     // ---- Setting : used when a node is used to make a NodeValue
@@ -1047,6 +1103,11 @@ public abstract class NodeValue extends ExprNode
         LiteralLabel lit = node.getLiteral() ;
         String lex = lit.getLexicalForm() ;
         RDFDatatype datatype = lit.getDatatype() ;
+
+        if ( datatype.equals(UCUMDatatype.theUCUMType)) {
+            Quantity quantity = (Quantity) UCUMDatatype.theUCUMType.parse(lit.getLexicalForm());
+            return new NodeValueQuantity(quantity);
+        } 
 
         // Quick check.
         // Only XSD supported.

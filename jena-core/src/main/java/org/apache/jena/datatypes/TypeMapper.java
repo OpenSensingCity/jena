@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
+import org.apache.jena.datatypes.cdt.UCUMDatatype;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype ;
 import org.apache.jena.datatypes.xsd.impl.RDFLangString ;
@@ -70,6 +71,7 @@ public class TypeMapper {
         theTypeMap.registerDatatype(XMLLiteralType.theXMLLiteralType);
         theTypeMap.registerDatatype(RDFLangString.rdfLangString) ;
         XSDDatatype.loadXSDSimpleTypes(theTypeMap);
+        theTypeMap.registerDatatype(UCUMDatatype.theUCUMType);
 
         // add primitive types
         theTypeMap.classToDT.put(float.class, theTypeMap.classToDT.get(Float.class));

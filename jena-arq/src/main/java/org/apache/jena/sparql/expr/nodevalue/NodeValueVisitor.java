@@ -40,4 +40,6 @@ public interface NodeValueVisitor
 //    public void visit(NodeValueGMonth nv) ;
 //    public void visit(NodeValueGMonthDay nv) ;
 //    public void visit(NodeValueGDay nv) ;
+        
+    public void visit(NodeValueQuantity nv) ;
 }

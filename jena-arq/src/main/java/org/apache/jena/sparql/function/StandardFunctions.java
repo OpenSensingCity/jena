@@ -23,6 +23,7 @@ import org.apache.jena.sparql.ARQConstants ;
 import org.apache.jena.sparql.function.library.* ;
 import org.apache.jena.sparql.function.library.sqrt ;
 import org.apache.jena.sparql.function.library.leviathan.* ;
+import org.apache.jena.sparql.function.library.ucum.FN_SameDimension;
 
 /** Standard function library. */
 
@@ -295,6 +296,9 @@ public class StandardFunctions
 //        9.7.12 op:subtract-dayTimeDuration-from-date
 //        9.7.13 op:add-dayTimeDuration-to-time
 //        9.7.14 op:subtract-dayTimeDuration-from-time
+
+        add(registry, FN_SameDimension.IRI,   FN_SameDimension.class);
+
     }
     
     private static void addCastXSD(FunctionRegistry registry, XSDDatatype dt) {

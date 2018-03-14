@@ -22,7 +22,7 @@
   <artifactId>jena-core</artifactId>
   <packaging>jar</packaging>
   <name>Apache Jena - Core</name>
-  <version>3.6.0</version>
+  <version>3.6.0-ucum</version>
 
   <parent>
     <groupId>org.apache.jena</groupId>
@@ -36,6 +36,7 @@
   <properties>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
     <build.time.xsd>${maven.build.timestamp}</build.time.xsd>
+    <systems.uom.version>0.7.2</systems.uom.version>
   </properties>
 
   <dependencies>
@@ -97,6 +98,18 @@
       <version>3.6.0</version>
       <classifier>tests</classifier>
       <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>systems.uom</groupId>
+      <artifactId>systems-ucum-java8</artifactId>
+      <version>${systems.uom.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>systems.uom</groupId>
+      <artifactId>systems-quantity</artifactId>
+      <version>${systems.uom.version}</version>
     </dependency>
   </dependencies>
 

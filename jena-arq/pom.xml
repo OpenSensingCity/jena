@@ -21,7 +21,7 @@
   <artifactId>jena-arq</artifactId>
   <packaging>jar</packaging>
   <name>Apache Jena - ARQ (SPARQL 1.1 Query Engine)</name>
-  <version>3.6.0</version>
+  <version>3.6.0-ucum</version>
 
   <parent>
     <groupId>org.apache.jena</groupId>
@@ -42,7 +42,7 @@
     <dependency>
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-core</artifactId>
-      <version>3.6.0</version>
+      <version>3.6.0-ucum</version>
     </dependency>
 
     <dependency>

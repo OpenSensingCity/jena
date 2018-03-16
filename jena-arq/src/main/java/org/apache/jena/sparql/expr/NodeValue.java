@@ -47,7 +47,6 @@ import org.apache.jena.datatypes.DatatypeFormatException ;
 import org.apache.jena.datatypes.RDFDatatype ;
 import org.apache.jena.datatypes.TypeMapper ;
 import org.apache.jena.datatypes.cdt.quantity.QuantityDatatype;
-import org.apache.jena.datatypes.cdt.quantity.CDTUCUM;
 import org.apache.jena.datatypes.xsd.XSDDateTime ;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.graph.NodeFactory ;
@@ -1102,8 +1101,15 @@ public abstract class NodeValue extends ExprNode
         RDFDatatype datatype = lit.getDatatype() ;
 
         if ( datatype instanceof QuantityDatatype ) {
-            Quantity quantity = (Quantity) datatype.parse(lit.getLexicalForm());
-            return new NodeValueQuantity(quantity);
+            try {
+                Quantity quantity = (Quantity) datatype.parse(lit.getLexicalForm());
+                return new NodeValueQuantity(quantity);                
+            } catch (DatatypeFormatException ex) {
+                if(VerboseExceptions) {
+                    String tmp =  FmtUtils.stringForNode(node) ;
+                    log.warn("Datatype format exception: " + tmp + ": " + ex.getMessage()) ;
+                }
+            }
         } 
 
         // Quick check.

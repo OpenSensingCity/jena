@@ -58,8 +58,8 @@ public class TestNodeQuantityOps extends BaseTest
     }
     
     @Test public void nq_div_01() {
-        testDiv("'1.0 m'^^cdt:length", "'2 s'^^cdt:time", "'0.5 m/s'^^cdt:speed") ;
-        testDiv("'1.0 m'^^cdt:length", "'2 s'^^cdt:time", "'0.5 m/s'^^cdt:ucum") ;
+        testDiv("'1.0 m'^^cdt:ucum", "'2 s'^^cdt:time", "'0.5 m/s'^^cdt:speed") ;
+        testDiv("'1.0 m'^^cdt:length", "'2 s'^^cdt:ucum", "'0.5 m/s'^^cdt:ucum") ;
         testDiv("'1.0 m'^^cdt:length", "'2 s'^^cdt:ucum", "'0.5 m/s'^^cdt:ucum") ;
         testDiv("'1.0 m'^^cdt:ucum", "'2 s'^^cdt:ucum", "'0.5 m/s'^^cdt:speed") ;
     }
@@ -137,13 +137,17 @@ public class TestNodeQuantityOps extends BaseTest
     {
         NodeValue nv3 = NodeValue.parse(s3) ;
         NodeValue nv = testDiv(s1, s2) ;
+        System.out.println("div = " + nv);
         assertEquals(nv3, nv) ;
     }
     
     static NodeValue testDiv(String s1, String s2)
     {
         NodeValue nv1 = NodeValue.parse(s1) ;
+                System.out.println("1: " + nv1);
+
         NodeValue nv2 = NodeValue.parse(s2) ;
+                System.out.println("2: " + nv2);
         return NodeValueOps.divisionNV(nv1, nv2) ;
     }
 

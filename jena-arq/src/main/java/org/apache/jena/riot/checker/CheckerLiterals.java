@@ -22,11 +22,14 @@ import java.util.Objects ;
 import java.util.regex.Pattern ;
 
 import org.apache.jena.JenaRuntime ;
+import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.RDFDatatype ;
+import org.apache.jena.datatypes.cdt.CDT;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.riot.system.ErrorHandler ;
 import org.apache.jena.sparql.graph.NodeConst ;
 import org.apache.jena.util.SplitIRI;
+import org.apache.jena.vocabulary.XSD;
 
 public class CheckerLiterals implements NodeChecker {
     // A flag to enable the test suite to read bad data.
@@ -108,29 +111,38 @@ public class CheckerLiterals implements NodeChecker {
     }
 
     protected static boolean validateByDatatypeJena(String lexicalForm, RDFDatatype datatype, ErrorHandler handler, long line, long col) {
-        if ( datatype.isValid(lexicalForm) )
-            return true ;
-        handler.warning("Lexical form '" + lexicalForm + "' not valid for datatype " + xsdDatatypeName(datatype), line, col) ;
-        return false ;
+        
+        try {
+            datatype.parse(lexicalForm);
+            return true;
+        } catch (DatatypeFormatException ex) {
+            handler.warning("Lexical form '" + lexicalForm + "' not valid for datatype " + datatypeName(datatype) + ": " + ex.getMessage(), line, col) ;
+            return false ;
+        }
     }
 
     protected static boolean checkWhitespace(String lexicalForm, RDFDatatype datatype, ErrorHandler handler, long line, long col) {
         if ( lexicalForm.contains(" ") ) {
-            handler.warning("Whitespace in "+xsdDatatypeName(datatype)+" literal: '" + lexicalForm + "'", line, col) ;
+            handler.warning("Whitespace in "+datatypeName(datatype)+" literal: '" + lexicalForm + "'", line, col) ;
             return false ;
         }
         if ( lexicalForm.contains("\n") ) {
-            handler.warning("Newline in "+xsdDatatypeName(datatype)+" literal: '" + lexicalForm + "'", line, col) ;
+            handler.warning("Newline in "+datatypeName(datatype)+" literal: '" + lexicalForm + "'", line, col) ;
             return false ;
         }
         if ( lexicalForm.contains("\r") ) {
-            handler.warning("Newline in "+xsdDatatypeName(datatype)+" literal: '" + lexicalForm + "'", line, col) ;
+            handler.warning("Newline in "+datatypeName(datatype)+" literal: '" + lexicalForm + "'", line, col) ;
             return false ;
         }
         return true ;
     }
     
-    private static String xsdDatatypeName(RDFDatatype datatype) {
-        return "XSD "+SplitIRI.localname(datatype.getURI());
+    private static String datatypeName(RDFDatatype datatype) {
+        if(datatype.getURI().startsWith(XSD.NS)) {
+            return "XSD "+SplitIRI.localname(datatype.getURI());
+        } else if (datatype.getURI().startsWith(CDT.NS)) {
+            return "CDT "+SplitIRI.localname(datatype.getURI());
+        } 
+        return datatype.getURI();
     }
 }

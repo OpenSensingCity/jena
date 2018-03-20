@@ -37,5 +37,6 @@ public class TestPackage extends TestSuite {
         super("datatypes");
         addTest(new JUnit4TestAdapter(TestDatatypes.class)) ;
         addTest(new JUnit4TestAdapter(TestDatatypeValues.class)) ;
+        addTest(new JUnit4TestAdapter(TestQuantityDatatypes.class)) ;
     }
 }

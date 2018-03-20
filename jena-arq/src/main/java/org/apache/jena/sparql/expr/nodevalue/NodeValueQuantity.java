@@ -20,6 +20,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.impl.LiteralLabel;
 import org.apache.jena.graph.impl.LiteralLabelFactory;
+import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.NodeValue;
 
 /**
@@ -58,5 +59,26 @@ public class NodeValueQuantity extends NodeValue {
     @Override
     public void visit(NodeValueVisitor visitor) {
         visitor.visit(this);
-    }    
+    }
+
+    @Override
+    public boolean equals(Expr other, boolean bySyntax) {
+        if ( other == null ) return false ;
+        if ( this == other ) return true ;
+        // This is the equality condition Jena uses - lang tags are different by case. 
+
+        if ( ! ( other instanceof NodeValueQuantity ) )
+            return false ;
+        NodeValueQuantity nvq = (NodeValueQuantity)other ;
+        Quantity q1 = getQuantity();
+        Quantity q2 = nvq.getQuantity();
+        try {
+            final Quantity q3 = q2.to(q1.getUnit());
+            return 0 == q1.getValue().floatValue() - q3.getValue().floatValue();
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    
 }

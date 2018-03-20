@@ -38,7 +38,7 @@ import tec.uom.se.quantity.Quantities;
  */
 public abstract class QuantityDatatype<Q extends Quantity<Q>> extends CDTDatatype {
 
-    protected static final UnitFormat unitFormat = ServiceProvider.current().getUnitFormatService().getUnitFormat("CI");
+    protected static final UnitFormat unitFormat = ServiceProvider.current().getUnitFormatService().getUnitFormat("CS");
     
     private final Class<Q> clazz;
 

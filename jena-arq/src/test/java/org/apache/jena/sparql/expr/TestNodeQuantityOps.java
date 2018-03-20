@@ -26,10 +26,19 @@ import org.junit.Test ;
 public class TestNodeQuantityOps extends BaseTest
 {
     
+    @Test public void nq_equals_01() {
+        assertEquals(NodeValue.parse("'1.0 m'^^cdt:ucum"), NodeValue.parse("'1.0 m'^^cdt:ucum") ) ;
+        assertEquals(NodeValue.parse("'1.0e0 m'^^cdt:ucum"), NodeValue.parse("'1.0 m'^^cdt:ucum") ) ;
+        assertEquals(NodeValue.parse("'0.1e1 m'^^cdt:ucum"), NodeValue.parse("'1.0 m'^^cdt:ucum") ) ;
+        assertEquals(NodeValue.parse("'1.0e-3 km'^^cdt:ucum"), NodeValue.parse("'1.0 m'^^cdt:ucum") ) ;
+        assertEquals(NodeValue.parse("'2000000.001 Pa'^^cdt:ucum"), NodeValue.parse("'2000000001 mPa'^^cdt:ucum") ) ;
+    }
+
     @Test public void nq_add_01() {
         testAdd("'1.0 m'^^cdt:ucum", "'0.1 m'^^cdt:ucum", "'1.1 m'^^cdt:ucum" ) ;
         testAdd("'1.0123456789123456789 m'^^cdt:ucum", "'0.0 m'^^cdt:ucum", "'1.01234567891234571 m'^^cdt:ucum" ) ; // 17 significant decimal digits
         testAdd("'1.10 m'^^cdt:length", "'2 m'^^cdt:ucum", "'3.1 m'^^cdt:ucum" ) ;
+        testAdd("'1 mPa'^^cdt:pressure", "'2 MPa'^^cdt:ucum", "'2000000.001 Pa'^^cdt:ucum" ) ;
     }
 
     @Test public void nq_add_02() {
@@ -137,17 +146,13 @@ public class TestNodeQuantityOps extends BaseTest
     {
         NodeValue nv3 = NodeValue.parse(s3) ;
         NodeValue nv = testDiv(s1, s2) ;
-        System.out.println("div = " + nv);
         assertEquals(nv3, nv) ;
     }
     
     static NodeValue testDiv(String s1, String s2)
     {
         NodeValue nv1 = NodeValue.parse(s1) ;
-                System.out.println("1: " + nv1);
-
         NodeValue nv2 = NodeValue.parse(s2) ;
-                System.out.println("2: " + nv2);
         return NodeValueOps.divisionNV(nv1, nv2) ;
     }
 

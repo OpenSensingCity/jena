@@ -29,6 +29,7 @@ import javax.measure.spi.ServiceProvider;
 import org.apache.jena.datatypes.cdt.CDT;
 import org.apache.jena.datatypes.cdt.CDTDatatype;
 import org.apache.jena.datatypes.cdt.quantity.CDTLength;
+import org.apache.jena.datatypes.cdt.quantity.CDTPressure;
 import org.apache.jena.datatypes.cdt.quantity.CDTSpeed;
 import org.apache.jena.datatypes.cdt.quantity.CDTTime;
 import org.apache.jena.datatypes.cdt.quantity.CDTUCUM;
@@ -47,7 +48,7 @@ public class TestQuantityDatatypes {
     public QuantityDatatype cdtLength = CDTLength.theType ;
     public QuantityDatatype cdtSpeed = CDTSpeed.theType ;
     public QuantityDatatype cdtTime = CDTTime.theType ;
-    public UnitFormat unitFormat = ServiceProvider.current().getUnitFormatService().getUnitFormat("CI");
+    public UnitFormat unitFormat = ServiceProvider.current().getUnitFormatService().getUnitFormat("CS");
 
     @Test public void registration_01()   { checkRegistration1("length", CDT.length); }
     @Test public void registration_02()   { checkRegistration1("speed", CDT.speed); }
@@ -64,11 +65,17 @@ public class TestQuantityDatatypes {
     }
 
     @Test public void time_01() {
-        valid(cdtTime, "1 s") ;
+        valid(cdtTime, "1 h") ;
         valid(cdtTime, "0.1 min") ;
         valid(cdtTime, "105 s.kg/g") ;
         invalid(cdtTime, "1234 m") ;
         invalid(cdtTime, "1234 kA") ;
+    }
+
+    @Test public void pressure_01() {
+        valid(CDTPressure.theType, "1 Pa") ;
+        valid(CDTPressure.theType, "1 kPa") ;
+        invalid(CDTPressure.theType, "1 PA") ;
     }
 
     @Test public void getTypeByValue() {

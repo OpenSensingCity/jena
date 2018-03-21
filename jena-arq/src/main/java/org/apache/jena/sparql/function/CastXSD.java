@@ -217,6 +217,27 @@ public class CastXSD extends FunctionBase1 implements FunctionFactory {
             throw exception("Can't cast xsd:boolean to "+castType) ;
         }
 
+        // Quantity -> xsd:
+        if ( nv.isQuantity()) {
+            Number number = nv.getQuantity().getValue();
+            if ( castType.equals(XSDDatatype.XSDdecimal) ) {   
+                return NodeValue.makeDecimal(number.doubleValue());
+            }
+            if ( castType.equals(XSDDatatype.XSDfloat) ) {   
+                return NodeValue.makeFloat(number.floatValue());
+            }
+            if ( castType.equals(XSDDatatype.XSDdouble) ) {   
+                return NodeValue.makeDouble(number.doubleValue());
+            }
+            if ( XSDFuncOp.isIntegerType(castType) ) {  
+                String lex = String.valueOf(number.intValue());
+                if ( ! castType.isValid(lex) )
+                    throw exception("Invalid lexical form: '"+lex+"' for "+castType.getURI()) ;
+                return castByLex(lex, castType);
+            }
+        }
+    
+
         // Try by lexical
         return castByLex(nv, castType) ;
     }

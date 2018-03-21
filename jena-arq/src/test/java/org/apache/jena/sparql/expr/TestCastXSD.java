@@ -118,6 +118,21 @@ public class TestCastXSD {
     @Test public void cast_to_gregorian_03() { testCast     ("xsd:gMonthDay('2015-10-12'^^xsd:date)",    "'--10-12'^^xsd:gMonthDay") ; }
     @Test public void cast_to_gregorian_04() { testCast     ("xsd:gYearMonth('2015-10-12'^^xsd:date)",   "'2015-10'^^xsd:gYearMonth") ; }
 
+    @Test public void cast_from_quantity_01()  { testCast      ("xsd:integer('1e0 Cel'^^<http://w3id.org/lindt/custom_datatypes#ucum>)",      "'1'^^xsd:integer") ; }
+    @Test public void cast_from_quantity_02()  { testCast      ("xsd:nonNegativeInteger('2e3 m'^^<http://w3id.org/lindt/custom_datatypes#length>)",      "'2000'^^xsd:nonNegativeInteger") ; }
+    @Test public void cast_from_quantity_03()  { testNoCast    ("xsd:negativeInteger('1000 m'^^<http://w3id.org/lindt/custom_datatypes#ucum>)") ; }
+    @Test public void cast_from_quantity_04()  { testNoCast    ("xsd:unsignedInt('-1 %'^^<http://w3id.org/lindt/custom_datatypes#ucum>)") ; }
+    @Test public void cast_from_quantity_05()  { testCast      ("xsd:integer('1.6e2 km'^^<http://w3id.org/lindt/custom_datatypes#ucum>)",     "160") ; }
+    @Test public void cast_from_quantity_06()  { testCast      ("xsd:integer('1.2 km'^^<http://w3id.org/lindt/custom_datatypes#ucum>)",     "1") ; }
+    @Test public void cast_from_quantity_07()  { testCast      ("xsd:integer('1.8 km'^^<http://w3id.org/lindt/custom_datatypes#ucum>)",     "1") ; }
+    @Test public void cast_from_quantity_08()  { testCast      ("xsd:decimal('1.2 Cel'^^<http://w3id.org/lindt/custom_datatypes#ucum>)",        "'1.2'^^xsd:decimal") ; }
+    @Test public void cast_from_quantity_09()  { testCast      ("xsd:decimal('1.2e-4 Cel'^^<http://w3id.org/lindt/custom_datatypes#temperature>)",        "'0.00012'^^xsd:decimal") ; }
+    @Test public void cast_from_quantity_10()  { testNoCast    ("xsd:decimal('1.2e-4 Cel'^^<http://w3id.org/lindt/custom_datatypes#length>)") ; }
+    @Test public void cast_from_quantity_11()  { testCast      ("xsd:float('1.2e-4 Cel'^^<http://w3id.org/lindt/custom_datatypes#temperature>)",        "'1.2E-4'^^xsd:float") ; }
+    @Test public void cast_from_quantity_12()  { testNoCast    ("xsd:float('1.2e-4 Cel'^^<http://w3id.org/lindt/custom_datatypes#length>)") ; }
+    @Test public void cast_from_quantity_13()  { testCast      ("xsd:double('1.2e-4 Cel'^^<http://w3id.org/lindt/custom_datatypes#temperature>)",        "'1.2E-4'^^xsd:double") ; }
+    @Test public void cast_from_quantity_14()  { testNoCast    ("xsd:double('1.2e-4 Cel'^^<http://w3id.org/lindt/custom_datatypes#length>)") ; }
+
     private void testNoCast(String input) {
         try {
             cast(input) ;

@@ -35,6 +35,7 @@ public class TestNodeQuantityOps extends BaseTest
     }
 
     @Test public void nq_add_01() {
+        testAdd("'1.0 Cel'^^cdt:ucum", "'0.1 K'^^cdt:ucum", "'-272.04999999999995 Cel'^^cdt:ucum" ) ;
         testAdd("'1.0 m'^^cdt:ucum", "'0.1 m'^^cdt:ucum", "'1.1 m'^^cdt:ucum" ) ;
         testAdd("'1.0123456789123456789 m'^^cdt:ucum", "'0.0 m'^^cdt:ucum", "'1.01234567891234571 m'^^cdt:ucum" ) ; // 17 significant decimal digits
         testAdd("'1.10 m'^^cdt:length", "'2 m'^^cdt:ucum", "'3.1 m'^^cdt:ucum" ) ;
@@ -44,6 +45,7 @@ public class TestNodeQuantityOps extends BaseTest
     @Test public void nq_add_02() {
         assertTrue(testAddError("'1.0 m'^^cdt:ucum", "'0.1 s'^^cdt:ucum")) ;
         assertTrue(testAddError("'1.0 m'^^cdt:ucum", "'0.1 s'^^cdt:length" )) ;
+        assertTrue(testAddError("'1.0 /Cel'^^cdt:ucum", "'0.1 /K'^^cdt:ucum" )) ;
     }
     
     @Test public void nq_multi_01() {

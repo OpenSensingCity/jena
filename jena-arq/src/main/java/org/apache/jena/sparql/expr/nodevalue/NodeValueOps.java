@@ -173,7 +173,9 @@ public class NodeValueOps
             try {
                 return new NodeValueQuantity(q1.add(q2));
             } catch (UnconvertibleException ex) {
-                throw new ExprEvalTypeException("Operator '+' : Incompatible dimensions: "+nv1+" and "+nv2) ;        
+                throw new ExprEvalTypeException("Operator '+' : Incompatible dimensions: "+nv1+" and "+nv2 ) ;        
+            } catch (UnsupportedOperationException ex) {
+                throw new ExprEvalTypeException("Operator '+' : Unsupported operation: "+nv1+" and "+nv2 + ": " + ex.getMessage() ) ;        
             }
         }
         
@@ -253,6 +255,8 @@ public class NodeValueOps
                 return new NodeValueQuantity(q1.subtract(q2));
             } catch (UnconvertibleException ex) {
                 throw new ExprEvalTypeException("Operator '+' : Incompatible dimensions: "+nv1+" and "+nv2) ;        
+            } catch (UnsupportedOperationException ex) {
+                throw new ExprEvalTypeException("Operator '+' : Unsupported operation: "+nv1+" and "+nv2 + ": " + ex.getMessage() ) ;        
             }
         }
         

@@ -42,6 +42,7 @@ import org.apache.jena.sparql.expr.ExprEvalTypeException ;
 import org.apache.jena.sparql.expr.NodeValue ;
 import org.apache.jena.sparql.expr.ValueSpaceClassification ;
 import org.apache.jena.sparql.util.NodeFactoryExtra ;
+import org.slf4j.LoggerFactory;
 
 /** The code parts of arithmetic operations on {@link NodeValue}s.
  */
@@ -173,9 +174,13 @@ public class NodeValueOps
             try {
                 return new NodeValueQuantity(q1.add(q2));
             } catch (UnconvertibleException ex) {
-                throw new ExprEvalTypeException("Operator '+' : Incompatible dimensions: "+nv1+" and "+nv2 ) ;        
+                String message = "Operator '+' : Incompatible dimensions: "+nv1+" and "+nv2;
+                LoggerFactory.getLogger(NodeValueOps.class).warn(message );
+                throw new ExprEvalTypeException(message) ;        
             } catch (UnsupportedOperationException ex) {
-                throw new ExprEvalTypeException("Operator '+' : Unsupported operation: "+nv1+" and "+nv2 + ": " + ex.getMessage() ) ;        
+                String message = "Operator '+' : Unsupported operation: "+nv1+" and "+nv2 + ": " + ex.getMessage() ;
+                LoggerFactory.getLogger(NodeValueOps.class).warn(message);
+                throw new ExprEvalTypeException(message) ;        
             }
         }
         
@@ -254,9 +259,13 @@ public class NodeValueOps
             try {
                 return new NodeValueQuantity(q1.subtract(q2));
             } catch (UnconvertibleException ex) {
-                throw new ExprEvalTypeException("Operator '+' : Incompatible dimensions: "+nv1+" and "+nv2) ;        
+                String message = "Operator '-' : Incompatible dimensions: "+nv1+" and "+nv2;
+                LoggerFactory.getLogger(NodeValueOps.class).warn(message );
+                throw new ExprEvalTypeException(message) ;        
             } catch (UnsupportedOperationException ex) {
-                throw new ExprEvalTypeException("Operator '+' : Unsupported operation: "+nv1+" and "+nv2 + ": " + ex.getMessage() ) ;        
+                String message = "Operator '-' : Unsupported operation: "+nv1+" and "+nv2 + ": " + ex.getMessage() ;
+                LoggerFactory.getLogger(NodeValueOps.class).warn(message);
+                throw new ExprEvalTypeException(message) ;        
             }
         }
         

@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Properties ;
 import java.util.ServiceLoader ;
 import javax.measure.Quantity;
+import javax.measure.Unit;
 
 import javax.xml.datatype.DatatypeConfigurationException ;
 import javax.xml.datatype.DatatypeFactory ;
@@ -47,6 +48,7 @@ import org.apache.jena.datatypes.DatatypeFormatException ;
 import org.apache.jena.datatypes.RDFDatatype ;
 import org.apache.jena.datatypes.TypeMapper ;
 import org.apache.jena.datatypes.cdt.quantity.QuantityDatatype;
+import org.apache.jena.datatypes.cdt.quantity.UnitDatatype;
 import org.apache.jena.datatypes.xsd.XSDDateTime ;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.graph.NodeFactory ;
@@ -65,6 +67,7 @@ import org.apache.jena.system.JenaSystem ;
 import org.apache.jena.vocabulary.RDF ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
+import tec.uom.se.quantity.Quantities;
 
 public abstract class NodeValue extends ExprNode
 {
@@ -314,6 +317,9 @@ public abstract class NodeValue extends ExprNode
     
     public static NodeValue makeQuantity(Quantity quantity)
     { return new NodeValueQuantity(quantity) ; }
+    
+    public static NodeValue makeUnit(Unit unit)
+    { return new NodeValueUnit(unit) ; }
     
     public static NodeValue booleanReturn(boolean b)
     { return b ? NodeValue.TRUE : NodeValue.FALSE ; }
@@ -580,6 +586,27 @@ public abstract class NodeValue extends ExprNode
                         && q1.getValue().floatValue() == q3.getValue().floatValue();
                 } catch (Exception e) {
                     return false;
+                }
+        
+            case VSPACE_UNIT:
+                // Two quantity literals
+                // compare them with the JSR 385 API.
+
+                final NodeValueUnit nvu1 = (NodeValueUnit) nv1;
+                final NodeValueUnit nvu2 = (NodeValueUnit) nv2;
+                final Unit u1 = nvu1.getUnit();
+                final Unit u2 = nvu2.getUnit();
+                if (u1.equals(u2)) {
+                    return true;
+                }
+                try {
+                    final Quantity qu1 = Quantities.getQuantity(1, u1);
+                    final Quantity qu2 = Quantities.getQuantity(1, u2);
+                    final Quantity qu3 = qu2.to(qu1.getUnit());
+                    return Objects.equals(qu1.getUnit(), qu3.getUnit())
+                            && qu1.getValue().doubleValue()== qu3.getValue().doubleValue();
+                } catch (Exception e) {
+                    return  false;
                 }
         
 
@@ -920,6 +947,7 @@ public abstract class NodeValue extends ExprNode
         if ( nv.isString())         return VSPACE_STRING ;
         if ( nv.isBoolean())        return VSPACE_BOOLEAN ;
         if ( nv.isQuantity())       return VSPACE_QUANTITY ;
+        if ( nv.isUnit())       return VSPACE_UNIT ;
         if ( ! nv.isLiteral() )     return VSPACE_NODE ;
 
         if ( ! SystemARQ.ValueExtensions )
@@ -1018,6 +1046,7 @@ public abstract class NodeValue extends ExprNode
     public boolean isGDay()         { return false ; }
 
     public boolean isQuantity()         { return false ; }
+    public boolean isUnit()         { return false ; }
     
     public boolean     getBoolean()     { raise(new ExprEvalTypeException("Not a boolean: "+this)) ; return false ; }
     public String      getString()      { raise(new ExprEvalTypeException("Not a string: "+this)) ; return null ; }
@@ -1033,6 +1062,7 @@ public abstract class NodeValue extends ExprNode
     public Duration    getDuration() { raise(new ExprEvalTypeException("Not a duration: "+this)) ; return null ; }
 
     public Quantity    getQuantity() { raise(new ExprEvalTypeException("Not a quantity: "+this)) ; return null ; }
+    public Unit    getUnit() { raise(new ExprEvalTypeException("Not a unit: "+this)) ; return null ; }
 
     // ----------------------------------------------------------------
     // ---- Setting : used when a node is used to make a NodeValue
@@ -1104,6 +1134,18 @@ public abstract class NodeValue extends ExprNode
             try {
                 Quantity quantity = (Quantity) datatype.parse(lit.getLexicalForm());
                 return new NodeValueQuantity(quantity);                
+            } catch (DatatypeFormatException ex) {
+                if(VerboseExceptions) {
+                    String tmp =  FmtUtils.stringForNode(node) ;
+                    log.warn("Datatype format exception: " + tmp + ": " + ex.getMessage()) ;
+                }
+            }
+        } 
+
+        if ( datatype instanceof UnitDatatype ) {
+            try {
+                Unit unit = (Unit) datatype.parse(lit.getLexicalForm());
+                return new NodeValueUnit(unit);                
             } catch (DatatypeFormatException ex) {
                 if(VerboseExceptions) {
                     String tmp =  FmtUtils.stringForNode(node) ;

@@ -36,7 +36,7 @@
   <properties>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
     <build.time.xsd>${maven.build.timestamp}</build.time.xsd>
-    <systems.uom.version>0.7.2</systems.uom.version>
+    <systems.uom.version>0.9</systems.uom.version>
   </properties>
 
   <dependencies>

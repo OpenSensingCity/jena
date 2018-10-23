@@ -42,4 +42,5 @@ public interface NodeValueVisitor
 //    public void visit(NodeValueGDay nv) ;
         
     public void visit(NodeValueQuantity nv) ;
+    public void visit(NodeValueUnit nv) ;
 }

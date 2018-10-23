@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,28 +18,20 @@
 
 package org.apache.jena.sparql.expr;
 
-public enum ValueSpaceClassification {
-    VSPACE_NODE,
-    VSPACE_NUM, 
-    VSPACE_DATETIME, 
-    VSPACE_DATE,
-    VSPACE_TIME,
-    VSPACE_DURATION,
+import org.apache.jena.atlas.junit.BaseTest ;
+import org.apache.jena.sparql.expr.nodevalue.NodeValueOps ;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test ;
+
+public class TestNodeUnitOps extends BaseTest
+{
     
-    // Collapse to VSPACE_DATETIME?
-    VSPACE_G_YEAR,
-    VSPACE_G_YEARMONTH,
-    VSPACE_G_MONTHDAY,
-    VSPACE_G_MONTH,    
-    VSPACE_G_DAY,
-    
-    VSPACE_STRING, VSPACE_LANG, VSPACE_SORTKEY,
-    VSPACE_BOOLEAN,
-    VSPACE_UNKNOWN,
-    VSPACE_DIFFERENT,
-    
-    // Quantity
-    VSPACE_QUANTITY,
-    // Unit
-    VSPACE_UNIT
+    @Test public void nq_equals_01() {
+        assertEquals(NodeValue.parse("'km/h'^^cdt:ucumunit"), NodeValue.parse("'km.h-1'^^cdt:ucumunit") ) ;
+        assertEquals(NodeValue.parse("'km/h'^^cdt:ucumunit"), NodeValue.parse("'(1000.m)/(60.min)'^^cdt:ucumunit") ) ;
+        assertNotEquals(NodeValue.parse("'km/h'^^cdt:ucumunit"), NodeValue.parse("'m/s'^^cdt:ucumunit") ) ;
+        assertNotEquals(NodeValue.parse("'km/h'^^cdt:ucumunit"), NodeValue.parse("'A'^^cdt:ucumunit") ) ;
+    }
+
 }
+

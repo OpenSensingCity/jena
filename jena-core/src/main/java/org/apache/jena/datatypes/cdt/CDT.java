@@ -51,6 +51,7 @@ import org.apache.jena.datatypes.cdt.quantity.CDTSpeed;
 import org.apache.jena.datatypes.cdt.quantity.CDTTemperature;
 import org.apache.jena.datatypes.cdt.quantity.CDTTime;
 import org.apache.jena.datatypes.cdt.quantity.CDTUCUM;
+import org.apache.jena.datatypes.cdt.quantity.CDTUCUMUnit;
 import org.apache.jena.datatypes.cdt.quantity.CDTVolume ;
 import org.apache.jena.rdf.model.Resource ;
 import org.apache.jena.rdf.model.ResourceFactory ;
@@ -65,6 +66,9 @@ public class CDT {
      * The RDF-friendly version of the CDT namespace
      */
     public static String getURI() { return NS; }
+    
+    /** Resource URI for cdt:ucumunit */
+    public static Resource ucumunit;
     
     /** Resource URI for cdt:ucum */
     public static Resource ucum;
@@ -170,6 +174,7 @@ public class CDT {
     
     // Initializer
     static {
+        ucumunit = ResourceFactory.createResource(CDTUCUMUnit.theTypeURI);
         ucum = ResourceFactory.createResource(CDTUCUM.theTypeURI);
         acceleration = ResourceFactory.createResource(CDTAcceleration.theTypeURI);
         amountOfSubstance = ResourceFactory.createResource(CDTAmountOfSubstance.theTypeURI);
